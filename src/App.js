@@ -1,74 +1,56 @@
 import React, { Component } from 'react';
-import { Route, Link, BrowserRouter as Router } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Link, Switch } from 'react-router-dom';
+import { CatalogView, ProductView } from './Products';
 
-const gradient = { background: 'linear-gradient(180deg,#7c69f4,#5546f2)' };
-
-const Home = () => (
-  <div style={gradient}>
-    <h2>Home</h2>
-  </div>
-);
-
-const About = () => (
-  <div>
-    <h2>About</h2>
-  </div>
-);
-
-const Topic = ({ match }) => {
-  return <h3>{match.params.topicId}</h3>;
-};
-
-const Topics = ({ match }) => {
-  console.log(match);
-  return (
-    <div>
-      <h2>Topics</h2>
-      <Route
-        exact
-        path={match.url}
-        render={() => <h3>Please select a topic</h3>}
-      />
-      <ul>
-        <li>
-          <Link to={`${match.url}/rendering`}>Rendering with React</Link>
-        </li>
-        <li>
-          <Link to="/topics/components">Components</Link>
-        </li>
-        <li>
-          <Link to="/topics/props-v-state">Props v. State</Link>
-        </li>
-      </ul>
-
-      <Route path="/topics/:topicId" component={Topic} />
-    </div>
-  );
-};
+const Home = props => <h1>Home</h1>;
+const About = props => <h1>About</h1>;
 
 class App extends Component {
+  state = {
+    products: [
+      {
+        id: 'product-1',
+        name: 'Product 1'
+      },
+      {
+        id: 'product-2',
+        name: 'Product 2'
+      }
+    ]
+  };
+
+  getProduct(productId) {
+    return this.state.products.find(product => product.id === productId);
+  }
+
   render() {
     return (
       <Router>
-        <div>
-          <ul>
-            <li>
-              <Link to="/">Home</Link>
-            </li>
-            <li>
-              <Link to="/about">About</Link>
-            </li>
-            <li>
-              <Link to="/topics">Topics</Link>
-            </li>
-          </ul>
-        </div>
+        <nav>
+          <Link to="/">Home</Link> <Link to="/about">About</Link>{' '}
+          <Link to="/products">Products</Link> <Link to="/nope">404</Link>
+        </nav>
 
-        <hr />
-
-        <Route exact path="/" component={Home} />
-        <Route path="/about" component={About} />
-        <Route path="/topics" component={Topics} />
+        <Switch>
+          <Route path="/" exact component={Home} />
+          <Route path="/about" component={About} />
+          <Route
+            path="/products/:productId"
+            render={props => (
+              <ProductView
+                {...props}
+                product={this.getProduct(props.match.params.productId)}
+              />
+            )}
+          />
+          <Route
+            path="/products"
+            render={props => (
+              <CatalogView {...props} products={this.state.products} />
+            )}
+          />
+          <Route render={() => <h3>404 NOT FOUND</h3>} />
+        </Switch>
       </Router>
     );
   }
