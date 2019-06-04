@@ -1,31 +1,53 @@
-import React, { Component } from 'react';
-import { Route, Link, Switch, BrowserRouter as Router } from 'react-router-dom';
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { SignoutButton } from './Auth';
 
-export const ProductView = props => {
+export const Product = props => {
   if (props.product) {
-    return <h1>{props.product.name}</h1>;
+    const propState = props.location.state;
+    const fromPath = (propState && propState.from) || '';
+
+    return (
+      <div>
+        <h3>{props.product.name}</h3>
+        {fromPath && <Link to={propState.from}>&lt; Back</Link>}
+      </div>
+    );
   }
   return <h3>404 PRODUCT NOT FOUND</h3>;
 };
 
-export const CatalogView = props => {
+export const Catalog = props => {
   const productList = props.products.map(product => {
     return (
-      <Link to={`${props.match.url}/${product.id}`} key={product.id}>
-        <li>{product.name}</li>
-      </Link>
+      <li key={product.id}>
+        <Link
+          to={{
+            pathname: `${props.match.url}/${product.id}`,
+            state: { from: props.location.pathname }
+          }}
+        >
+          {product.name}
+        </Link>
+      </li>
     );
   });
 
   return (
     <div>
-      <h1>Products</h1>
+      <h3>Products</h3>
       <ul>
         {productList}
-        <Link to={`${props.match.url}/nope`}>
-          <li>Not Found</li>
-        </Link>
+        <li>
+          <Link to={`${props.match.url}/nope`}>Product Not Found</Link>
+        </li>
       </ul>
     </div>
   );
 };
+
+export const Cart = props => (
+  <h3>
+    My Cart <SignoutButton setAuth={props.setAuth} />
+  </h3>
+);
